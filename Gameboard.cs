@@ -101,7 +101,6 @@ namespace Tic_Tac_Toe
                     {
                         Console.WriteLine();
                     }
-                    
                 }
 
                 if (i != 2)

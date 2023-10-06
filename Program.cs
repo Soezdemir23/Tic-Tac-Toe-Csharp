@@ -1,32 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Tic_Tac_Toe;
 
-/**
- * Start the Tic Tac Toe game by presenting the players a menu:
- *  1.Start Single Player Game
- *  2.Start Hotseat Game
- *  3.Start a Single Player Game with Rounds
- *  4.Start Hotseat game with rounds
- *  5.Exit
- *
- *  General use case:
- *  Ask players for their chars
- *  Ask players for their names
-     *  Draw the map
-     *  Ask the first Player for individual input
-     *  draw the map
-     *  Ask the second player for individual input
-     *  draw the map
- *fill the gameboard with the input
- *IF THE winner is determined, show the player, do the logic
- *else continue
- *
- *
- * If the player wins, add it to the scoreboard and carry on until somebody
- * has more points within 5 rounds
- *
- *
- */
 
 Console.WriteLine("Hello, welcome to Tic Tac Toe!");
 Console.WriteLine("Please select a game mode:");
@@ -50,17 +24,32 @@ while (true)
 
             players[1] = new Player('X', "Computer");
             players[1].setIsBot(true);
-            new Logic(players, new Gameboard());
+            new Logic(players, new Gameboard(), false);
 
             break;
         case ConsoleKey.D2:
             Console.WriteLine("Starting Hotseat Game");
+            players[0] = HandlePlayer();
+            players[1] = HandlePlayer();
+
+            new Logic(players, new Gameboard(), false);
             break;
         case ConsoleKey.D3:
             Console.WriteLine("Starting Single Player Game with Rounds");
+
+            players[0] = HandlePlayer();
+
+            players[1] = new Player('X', "Computer");
+            players[1].setIsBot(true);
+            new Logic(players, new Gameboard(), true);
+
             break;
         case ConsoleKey.D4:
             Console.WriteLine("Starting Hotseat Game with Rounds");
+            players[0] = HandlePlayer();
+            players[1] = HandlePlayer();
+
+            new Logic(players, new Gameboard(), false);
             break;
         case ConsoleKey.D5:
             Console.WriteLine("Exiting...");
