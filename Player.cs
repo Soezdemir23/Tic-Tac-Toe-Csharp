@@ -11,13 +11,15 @@ namespace Tic_Tac_Toe
         private char Sign { get; set; }
         private string Name { get; set; }
         private bool IsBot { get; set; }
+        private int score { get; set; } = 0;
 
         public Player(char Sign, string Name)
         {
             if (Sign == null)
             {
                 throw new ArgumentNullException("You entered less or more than one character");
-            }else
+            }
+            else
             {
                 this.Sign = Sign;
             }
@@ -29,7 +31,7 @@ namespace Tic_Tac_Toe
             return this.Sign;
         }
 
-         public string GetName()
+        public string GetName()
         {
             return Name;
         }
@@ -38,9 +40,20 @@ namespace Tic_Tac_Toe
         {
             return IsBot;
         }
+
         public void setIsBot(bool isBot)
         {
             this.IsBot = isBot;
+        }
+
+        public void AddScore()
+        {
+            score++;
+        }
+
+        public int GetScore()
+        {
+            return score;
         }
     }
 }
