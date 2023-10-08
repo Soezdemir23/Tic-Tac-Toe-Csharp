@@ -9,14 +9,14 @@ namespace Tic_Tac_Toe
 {
     internal class Logic
     {
-        Player[] Players { get; set; }
-        int rounds { get; set; } = 0;
-        bool multipleRounds { get; set; } = false;
+        private Player[] players { get; set; }
+        private int rounds { get; set; } = 0;
+        private bool multipleRounds { get; set; } = false;
 
-        Gameboard board { get; set; }
+        private Gameboard gameboard { get; set; }
         private bool secondPlayerTurn { get; set; } = false;
 
-        (int, int) position { get; set; } = (1, 1);
+        public (int, int) position { get; set; } = (1, 1);
         private char[,] playfield { get; set; } =
             new char[3, 3]
             {
@@ -25,119 +25,178 @@ namespace Tic_Tac_Toe
                 { '-', '-', '-' }
             };
 
-
-        public Logic(Player[] players, Gameboard gameboard, bool multirounds)
+        public Logic(Player[] players, Gameboard gameboard, bool multipleRounds)
         {
-            if (multirounds == true) multipleRounds = true;
+            this.players = players;
+            this.gameboard = gameboard;
+            this.multipleRounds = multipleRounds;
             Console.Clear();
-            Players = players;
-            board = gameboard;
-            Player winner = new Player('µ', "a") ;
-            while (true) // this loop is unimportant until we start using multiple rounds.
+            if (multipleRounds)
             {
-                while (true)
-                {
-                    if (multipleRounds == true)
-                    {
-                        Console.WriteLine($"{players[0].GetName()} VS {players[1].GetName()}");
-                        Console.WriteLine($"\tRound {rounds}");
-                    }
+                GameWithRounds();
+            }
+            else
+            {
+                GameWithNoRounds();
+            }
 
-                    gameboard.DrawBoard(playfield, position);
-                    Console.WriteLine(
-                        "Choose WASD or Arrow keys to choose the field and press enter."
-                    );
-                    Console.WriteLine("Also you can use the numpad or numbers or even the mouse!");
-                    GetInput();
-                    Console.Clear();
-                    gameboard.DrawBoard(playfield, position);
-                    if (CheckForWin(players[0]) == true)
-                    {
-                       winner = AnnounceWinner(players[0]);
-                        break;
-                    }
-                    // the 2nde plyer is a bot and the player1 didn't get it into a draw yet.
-                    if (Players[1].GetIsBot() == true && IsDraw() == false) // can be easily circumvented in a hotseat game, bleh
-                    {
-                        Random random = new Random();
-                        while (true)
-                        {
-                            int x = random.Next(0, 3);
-                            int y = random.Next(0, 3);
-                            if (playfield[x, y] == '-')
-                            {
-                                playfield[x, y] = Players[1].GetSign();
-                                break;
-                            }
-                        }
-                    }// the draw has been pulled
-                    else if (IsDraw() == true)
-                    {
-                        Console.WriteLine("We have a DRAW!");
-                        if(multipleRounds == true)
-                        {
-                            Console.WriteLine("New Round!");
-                            break;
-                        }
-                        else
-                        {
-                            return;
-                        }  
-                    }
-                    else if (players[1].GetIsBot() == false && IsDraw() == false)
-                    {
-                        GetInput();
-                    }
-                    //check if the second player has won
-                    if (CheckForWin(players[1]) == true)
-                    {
-                        winner = AnnounceWinner(players[1]);
-                        gameboard.DrawBoard(playfield, position);
-                        break;
-                    }
-                    
-                    Console.Clear();
+            Console.Clear();
+        }
+
+        public void GameWithNoRounds()
+        {
+            while (true)
+            {
+                gameboard.WhoseTurn(players[0]);
+                gameboard.DrawBoard(playfield, position);
+                gameboard.ControlInstructions();
+                GetInput(); // we draw the board inside the getinput method and the control since
+                if (CheckForWin(players[0]))
+                {
+                    gameboard.AnnounceWinner(players[0], multipleRounds);
+                    return;
                 }
-                winner.GetIsBot();
-                if (multipleRounds == true)
+                else if (IsDraw() == true)
                 {
-                    if (rounds <5)
-                    {
-                        Console.WriteLine("Next round ");
-                        rounds++;
-                        //reset playfield
-                        ResetPlayField();        
-                        continue;
+                    gameboard.AnnounceDraw();
+                    Thread.Sleep(500);
+                    return;
+                }
+                secondPlayerTurn = true;
+                Console.Clear();
+                gameboard.WhoseTurn(players[1]);
+                gameboard.DrawBoard(playfield, position);
+                gameboard.ControlInstructions();
+                if (players[1].GetIsBot() == true)
+                {
+                    
+                    GetComputerInput();
+                    Console.Clear();
+                    gameboard.WhoseTurn(players[1]);
+                    gameboard.DrawBoard(playfield, position);
+                    gameboard.ControlInstructions();
+                    Thread.Sleep(1000);
+                }
+                else
+                {
+                    
+                    GetInput();
+                }
+                if (CheckForWin(players[1]))
+                {
+                    gameboard.AnnounceWinner(players[1], multipleRounds);
+                    return;
+                }
+                else if (IsDraw() == true)
+                {
+                    gameboard.AnnounceDraw();
+                    return;
+                }
+                secondPlayerTurn = false;
+                Console.Clear();
+            }
+        }
 
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Player {winner.GetName()} has won with {winner.GetScore()} points.");
-                        Console.Write("Press any key to get back to the menu");
-                        Console.ReadKey();
-                        Console.Clear();
-                        return;
-                    }
-                }else
+        public void GameWithRounds() 
+        {
+        
+            while (rounds <= 5)
+            {
+                Console.Clear();
+                gameboard.BillBoard(players);
+                gameboard.WhoseTurn(players[0]);
+                gameboard.DrawBoard(playfield, position);
+                gameboard.ControlInstructions();
+
+                GetInput();
+                if (CheckForWin(players[0]))
                 {
+                    AnnounceRoundWinner(players[0]);
+                    Thread.Sleep(1000);
+                    ResetPlayField();
+                    rounds++;
+                    position = (1, 1);
+                    continue;
+                }
+                else if (IsDraw() == true)
+                {
+                    Console.WriteLine("Draw!");
+                    Thread.Sleep(500);
+                    ResetPlayField();
+                    rounds++;
+                    continue;
+                }
+                secondPlayerTurn = true;
+                Console.Clear();
+                gameboard.BillBoard(players);
+                gameboard.WhoseTurn(players[1]);
+                gameboard.DrawBoard(playfield, position);
+                gameboard.ControlInstructions();
+                
+                if (players[1].GetIsBot() == true)
+                {
+                    GetComputerInput();
+                    Thread.Sleep(1000);
+                    Console.Clear();
+                    gameboard.BillBoard(players);
+                    gameboard.WhoseTurn(players[1]);
+                    gameboard.DrawBoard(playfield, position);
+                    gameboard.ControlInstructions();
+                }
+                else
+                {
+                    GetInput();
+                }
+
+                if (CheckForWin(players[1]))
+                {
+                    AnnounceRoundWinner(players[1]);
+                    ResetPlayField();
+                    rounds++;
+                    position = (1, 1);
+                    continue;
+                }
+                else if (IsDraw() == true)
+                {
+                    Console.WriteLine("Draw!");
+                    Thread.Sleep(500);
+                    ResetPlayField();
+                    rounds++;
+                    position = (1, 1);
+                    continue;
+                }
+                secondPlayerTurn = false;
+            }
+            Console.WriteLine("Game Over! Multiple Rounds!");
+        }
+
+        public void GetComputerInput()
+        {
+            while (true)
+            {
+                int x = new Random().Next(0, 3);
+                int y = new Random().Next(0, 3);
+                if (playfield[x, y] == '-')
+                {
+                    playfield[x, y] = players[1].GetSign();
                     return;
                 }
             }
         }
 
         private bool IsDraw()
-        {    
-             for (int i = 0; i < 2; i++)
+        {
+            for (int i = 0; i < 3; i++)
             {
-                for (int j =0; j < 2; j++)
+                for (int j = 0; j < 3; j++)
                 {
-                    if (playfield[i,j] == '-')
+                    if (playfield[i, j] == '-')
                     {
                         return false;
                     }
                 }
-            } return true;
-
+            }
+            return true;
         }
 
         private void ResetPlayField()
@@ -150,11 +209,11 @@ namespace Tic_Tac_Toe
             };
         }
 
-        private Player AnnounceWinner(Player player)
+        private Player AnnounceRoundWinner(Player player)
         {
-            Console.WriteLine($"{player.GetName()} has won!");
+            Console.WriteLine($"{player.GetName()} won this round!");
+            Console.WriteLine($"{player.GetName()} has {player.GetScore()} points!");
             player.AddScore();
-            Console.WriteLine("Press any key to continue...");
             return player;
         }
 
@@ -238,11 +297,11 @@ namespace Tic_Tac_Toe
                         {
                             if (secondPlayerTurn == true)
                             {
-                                playfield[position.Item1, position.Item2] = Players[1].GetSign();
+                                playfield[position.Item1, position.Item2] = players[1].GetSign();
                             }
                             else
                             {
-                                playfield[position.Item1, position.Item2] = Players[0].GetSign();
+                                playfield[position.Item1, position.Item2] = players[0].GetSign();
                             }
                             isEntered = true;
                         }
@@ -252,13 +311,22 @@ namespace Tic_Tac_Toe
                         }
                         break;
                 }
-                Console.Clear();
-
-                board.DrawBoard(playfield, position);
-                Console.WriteLine(
-    "Choose WASD or Arrow keys to choose the field and press enter."
-);
-
+                // here we draw the board and the control instructions
+                if (multipleRounds == true)
+                {
+                    gameboard.BillBoard(players);
+                }
+                if (secondPlayerTurn == true)
+                {
+                    gameboard.WhoseTurn(players[1]);
+                }
+                else
+                {
+                    gameboard.WhoseTurn(players[0]);
+                }
+                gameboard.DrawBoard(playfield, position);
+                gameboard.ControlInstructions();
+                
             }
         }
 
@@ -285,19 +353,31 @@ namespace Tic_Tac_Toe
             {
                 //horizontal
                 //should return 0,0 == 0,1 == 0,2, 1,0 == 1,1 == 1,2
-                if (sign == playfield[i, 0] && playfield[i,0] == playfield[i, 1] && playfield[i, 1] == playfield[i, 2])
+                if (
+                    sign == playfield[i, 0]
+                    && playfield[i, 0] == playfield[i, 1]
+                    && playfield[i, 1] == playfield[i, 2]
+                )
                 {
                     return true;
                 }
                 //vertical
-                if (sign == playfield[0,i] && playfield[0, i] == playfield[1, i] && playfield[1, i] == playfield[2, i])
+                if (
+                    sign == playfield[0, i]
+                    && playfield[0, i] == playfield[1, i]
+                    && playfield[1, i] == playfield[2, i]
+                )
                 {
                     return true;
                 }
             }
             if (
-                sign == playfield[0,0] && playfield[0, 0] == playfield[1, 1] && playfield[1, 1] == playfield[2, 2]
-                || sign == playfield[0,2] && playfield[0, 2] == playfield[1, 1] && playfield[1, 1] == playfield[2, 0]
+                sign == playfield[0, 0]
+                    && playfield[0, 0] == playfield[1, 1]
+                    && playfield[1, 1] == playfield[2, 2]
+                || sign == playfield[0, 2]
+                    && playfield[0, 2] == playfield[1, 1]
+                    && playfield[1, 1] == playfield[2, 0]
             )
             {
                 return true;
