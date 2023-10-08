@@ -113,5 +113,55 @@ namespace Tic_Tac_Toe
                 }
             }
         }
+
+        public void BillBoard(Player[] players)
+        {
+            Console.WriteLine("Scoreboard");
+            Console.WriteLine("----------");
+            Console.WriteLine($"{players[0].GetName()}: {players[0].GetScore()}");
+            Console.WriteLine($"{players[1].GetName()}: {players[1].GetScore()}");
+        }
+
+        public void ControlInstructions()
+        {
+            Console.WriteLine("WASD or Arrow keys to move the red selection");
+            Console.WriteLine("Press Enter to place your sign");
+            Console.WriteLine("Press numpad or number keys to select respective fields");
+        }
+
+        public void AnnounceWinner(Player player, bool multipleRounds)
+        {
+            if (multipleRounds == false)
+            {
+                Console.WriteLine($"{player.GetName()} won the game!");
+                Console.WriteLine("Game over! Press a key to return to main menu.");
+                Console.ReadLine();
+            }
+            else
+            {
+                Console.WriteLine(
+                    $"{player.GetName()} won the game with {player.GetScore()} points!"
+
+                );
+            }
+            
+        }
+
+        public void AnnounceDraw()
+        {
+            Console.WriteLine("Draw!");
+            Console.WriteLine("Game over! Press a key to return to main menu.");
+            Console.ReadLine();
+        }
+
+        public void WhoseTurn(Player player)
+        {
+            Console.WriteLine($"{player.GetName()}'s turn");
+        }
+
+        internal void AnnounceGameWinner(Player[] players)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
