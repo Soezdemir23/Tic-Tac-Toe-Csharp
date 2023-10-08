@@ -8,8 +8,8 @@ namespace Tic_Tac_Toe
 {
     internal class Player
     {
-        private char Sign { get; set; }
-        private string Name { get; set; }
+        public char Sign { get; private set; }
+        public string Name { get; private set; }
         private bool IsBot { get; set; }
         private int score { get; set; } = 0;
 
@@ -55,5 +55,43 @@ namespace Tic_Tac_Toe
         {
             return score;
         }
+
+
+       public static Player HandlePlayer(int number)
+        {
+            string name;
+            string sign;
+            while (true)
+            {
+                Console.WriteLine($"Please enter your name player {number}:");
+                name = Console.ReadLine();
+                if (name.Length > 0)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input, please try again");
+                }
+            }
+
+            while (true)
+            {
+                Console.WriteLine("Please enter your sign:");
+                sign = Console.ReadLine();
+                if (sign.Length == 1)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input, please enter one character, number, letter !");
+                }
+
+            }
+            Console.WriteLine($"Welcome {name}! Your sign is {sign}");
+            return new Player(sign[0], name);
+        }
+
     }
 }

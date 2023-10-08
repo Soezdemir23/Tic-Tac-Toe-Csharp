@@ -1,7 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Tic_Tac_Toe;
 
-
 Console.WriteLine("Hello, welcome to Tic Tac Toe!");
 Console.WriteLine("Please select a game mode:");
 
@@ -20,7 +19,7 @@ while (true)
     {
         case ConsoleKey.D1:
             Console.WriteLine("Starting Single Player Game");
-            players[0] = HandlePlayer();
+            players[0] = Player.HandlePlayer(1);
 
             players[1] = new Player('X', "Computer");
             players[1].setIsBot(true);
@@ -29,15 +28,18 @@ while (true)
             break;
         case ConsoleKey.D2:
             Console.WriteLine("Starting Hotseat Game");
-            players[0] = HandlePlayer();
-            players[1] = HandlePlayer();
+            players[0] = Player.HandlePlayer(1);
+            Thread.Sleep(500);
+            
+            players[1] = Player.HandlePlayer(2);
+            Thread.Sleep(500);
 
             new Logic(players, new Gameboard(), false);
             break;
         case ConsoleKey.D3:
             Console.WriteLine("Starting Single Player Game with Rounds");
 
-            players[0] = HandlePlayer();
+            players[0] = Player.HandlePlayer(1);
 
             players[1] = new Player('X', "Computer");
             players[1].setIsBot(true);
@@ -46,10 +48,11 @@ while (true)
             break;
         case ConsoleKey.D4:
             Console.WriteLine("Starting Hotseat Game with Rounds");
-            players[0] = HandlePlayer();
-            players[1] = HandlePlayer();
-
-            new Logic(players, new Gameboard(), false);
+            players[0] = Player.HandlePlayer(1);
+            Thread.Sleep(500);
+            players[1] = Player.HandlePlayer(2);
+            Thread.Sleep(500);
+            new Logic(players, new Gameboard(), true);
             break;
         case ConsoleKey.D5:
             Console.WriteLine("Exiting...");
@@ -61,28 +64,3 @@ while (true)
     }
 }
 
-static Player HandlePlayer()
-{
-    string name;
-    string sign;
-    while (true)
-    {
-        Console.WriteLine("Please enter your name:");
-        name = Console.ReadLine().Trim();
-        Console.WriteLine("Please enter your sign:");
-        sign = Console.ReadLine();
-
-        if (sign.Length != 1)
-        {
-            Console.WriteLine("You entered less or more than one character");
-            continue;
-        }
-        else if (sign.Length == 1)
-        {
-            Console.WriteLine($"your name: {name}\nyour sign: {sign}");
-            break;
-        }
-    }
-
-    return new Player(sign[0], name);
-}
